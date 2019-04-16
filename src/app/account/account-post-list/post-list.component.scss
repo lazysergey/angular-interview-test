@@ -1,0 +1,15 @@
+.card {
+    width: 100%;
+    &__wrapper {
+        display: flex;
+        align-items: space-between;
+    }
+    &-body {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    &.shade {
+        opacity: 0.4;
+    }
+}

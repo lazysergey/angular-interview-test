@@ -1,5 +1,5 @@
 <!--The content below is only a placeholder and can be replaced.-->
-<div style="text-align:center">
+<!-- <div style="text-align:center">
   <h1>
     Welcome to {{ title }}!
   </h1>
@@ -16,6 +16,42 @@
   <li>
     <h2><a target="_blank" rel="noopener" href="https://blog.angular.io/">Angular blog</a></h2>
   </li>
-</ul>
+</ul> -->
+<div class="container">
+  <nav class="row">
+    <ul class="col-12">
+      <li>
+        <a href="javascript:void(0)" routerLink="/posts">posts</a>
+      </li>
+      <li>
+        <a href="javascript:void(0)" routerLink="/posts/2">posts/2</a>
+      </li>
+      <li>
+        <a href="javascript:void(0)" routerLink="/posts/12314123321">posts/12314123321</a>
+      </li>
+      <li>
+        <a href="javascript:void(0)" routerLink="/account/login">account/login</a>
+      </li>
+      <!-- <li>
+        <a href="javascript:void(0)" (click)="doLogout()">doLogout</a>
+      </li>
+      <li>
+        <a href="javascript:void(0)" (click)="doLoginCorrectUser()">doLogin correct user</a>
+      </li> -->
+      <li>
+        <a href="javascript:void(0)" routerLink="/account">account</a>
+      </li>
+      <li>
+        <a href="javascript:void(0)" routerLink="/account/posts">account/posts</a>
+      </li>
+      <li>
+        <a href="javascript:void(0)" routerLink="/account/posts/create">account/posts/create</a>
+      </li>
+      <li>
+        <a href="javascript:void(0)" routerLink="/account/posts/update">account/posts/update</a>
+      </li>
+    </ul>
+  </nav>
+</div>
 
 <router-outlet></router-outlet>

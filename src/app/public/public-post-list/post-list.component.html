@@ -1,0 +1,14 @@
+<div class="st-post-list container">
+  <div class="row">
+    <div class="col-6 col-sm-3 post" *ngFor="let post of posts" >
+      <a class="" href="/posts/{{post.id}}" routerLink="/posts/{{post.id}}">
+        <span class="post__title">
+          {{post.title}}
+        </span>
+        <span class="post__body">
+          {{post.body}}
+        </span>
+      </a>
+    </div>
+  </div>
+</div>

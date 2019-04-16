@@ -1,0 +1,17 @@
+<div class="st-post-details container" *ngIf="postDetails">
+  <div class="row">
+    <div class="col-12">
+      <a href="javascript:void(0)" (click)="goBack()">&lt;&nbsp;Back</a>
+      <h1>
+        {{postDetails.title}}
+      </h1>
+      <p>
+        {{postDetails.body}}
+      </p>
+      <p>
+        by {{postDetails.userId}}
+      </p>
+    </div>
+
+  </div>
+</div>
