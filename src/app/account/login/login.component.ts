@@ -27,7 +27,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     });
 
     this.loginForm.controls.emailControl.valueChanges.subscribe(res => {
-      this.emailDoesNotExist = false;
+      this.emailDoesNotExist = false;//shows error message based on http response
     })
   }
   ngOnDestroy() {
