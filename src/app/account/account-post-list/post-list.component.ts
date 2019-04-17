@@ -16,18 +16,15 @@ export class PostListComponent implements OnDestroy {
     private postDataService: PostDataService
   ) {
     this.posts$ = postDataService.currentUserAllPost$;
-    // this.postDataService.currentUserAllPost$.subscribe(
-    //   _ => console.log(_)
-    // );
-    // this.postDataService.allPosts$.next("1234132");
   }
 
   ngOnDestroy() {
-    // this.subscription.unsubscribe();
   }
 
   deletePost(postToDelete: Post) {
     (postToDelete as any).shade = true;
-    this.postDataService.deletePost(postToDelete.id);
+    this.postDataService.deletePost(postToDelete.id).subscribe(
+      res => console.log(res)
+    );
   }
 }

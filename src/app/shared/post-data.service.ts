@@ -3,7 +3,7 @@ import { AuthService } from './../shared/auth.service';
 import { ActivatedRoute, Router, ActivatedRouteSnapshot, ActivationEnd } from '@angular/router';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map, catchError, tap, mapTo, switchMap, filter } from 'rxjs/operators';
+import { map, catchError, tap, mapTo, switchMap, filter, take } from 'rxjs/operators';
 import { Observable, of, BehaviorSubject, ReplaySubject, from, empty, Subject, combineLatest, zip } from 'rxjs';
 import { Post, PostBase } from '../models/post';
 
@@ -54,7 +54,7 @@ export class PostDataService {
         }
       );
     } else {
-      //TODO: loads last post
+      //FIXME: component here loads last post in edit form
       return this.httpService.doCreatePost(post).pipe(
         map(res => {
           this.userPosts.push(post);
@@ -67,14 +67,12 @@ export class PostDataService {
   loadCurrentPost() {
     this.postId$.pipe(
       filter((id: number) => id != undefined),
-      // tap(_ => console.log("POSTID", _)),
       switchMap((id: number) =>
         this.httpService.getPost(id)
       ),
     ).pipe(
       map((postDetails => {
         if (postDetails) {
-          // console.log(postDetails)
           return postDetails;
         }
       }))
@@ -105,17 +103,18 @@ export class PostDataService {
       this.httpService.doDeletePost(id),
       this.currentUserAllPost$,
       this.allPosts$,
-      (post: Post, currentUserAllPosts: Post[], allPosts: Post[]) => {
-        console.log("deleting")
-        console.log(post)
-        const indexInCurrentPosts = currentUserAllPosts.findIndex(p => p.id == post.id);
-        currentUserAllPosts.splice(indexInCurrentPosts, 1);
-        this.currentUserAllPost$.next(currentUserAllPosts);
-
-        const indexInAllPosts = this.userPosts.findIndex(p => p.id == post.id);
-        allPosts.splice(indexInAllPosts, 1);
-        this.allPosts$.next(allPosts)
+      (res, currentUserAllPosts: Post[], allPosts: Post[]) => {
+        if (currentUserAllPosts.length) {
+          const indexInCurrentPosts = currentUserAllPosts.findIndex(p => p.id == id);
+          currentUserAllPosts.splice(indexInCurrentPosts, 1);
+          this.currentUserAllPost$.next(currentUserAllPosts);
+        }
+        if (allPosts.length) {
+          const indexInAllPosts = allPosts.findIndex(p => p.id == id);
+          allPosts.splice(indexInAllPosts, 1);
+          this.allPosts$.next(allPosts)
+        }
       }
-    );
+    )
   }
 }
