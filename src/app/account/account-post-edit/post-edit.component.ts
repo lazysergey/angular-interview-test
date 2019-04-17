@@ -4,7 +4,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { PostDataService } from './../../shared/post-data.service';
 import { map, switchMap, take } from 'rxjs/operators';
 import { Post } from 'src/app/models/post';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-post-edit',
@@ -12,11 +12,9 @@ import { Subject } from 'rxjs';
   styleUrls: ['./post-edit.component.scss']
 })
 export class PostEditComponent implements OnInit, OnDestroy {
-  currentPostId: any;
-  buttonTitle$: any;
-  currentPost$: Subject<Post>;
-  activatedRouteSubscription: any;
-  subscription: any;
+  public buttonTitle$: any;
+  public currentPost$: Subject<Post>;
+  private subscription: Subscription;
 
   constructor(
     private postDataService: PostDataService,
@@ -62,7 +60,7 @@ export class PostEditComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(){
-    this.subscription.unsubscribe()
+    this.subscription && this.subscription.unsubscribe()
   }
 
 }

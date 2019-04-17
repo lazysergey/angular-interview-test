@@ -2,7 +2,7 @@ import { CookieConfig } from './cookie.config';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, OnInit, OnDestroy } from '@angular/core';
 import { map, catchError, mergeMap, switchMap, distinctUntilChanged } from 'rxjs/operators';
-import { Observable, of, ReplaySubject, merge, Subject, throwError, interval } from 'rxjs';
+import { Observable, of, ReplaySubject, merge, Subject, throwError, interval, Subscription } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
 import { User } from '../models/user';
 import { Router } from '@angular/router';
@@ -16,6 +16,7 @@ export class AuthService {
   public readonly user$: Observable<User> = this._user$.asObservable();
   private _isAuth$: ReplaySubject<boolean> = new ReplaySubject<boolean>(1);
   public readonly isAuth$: Observable<boolean> = this._isAuth$.asObservable();
+  private subscription: Subscription;
 
   constructor(
     private cookieService: CookieService,
@@ -30,11 +31,13 @@ export class AuthService {
 
   checkLoginStatus() {
     if (this.cookieService.get(CookieConfig.authToken)) {
-      this.getUser(this.cookieService.get(CookieConfig.authEmail)).subscribe(
+      this.subscription = this.getUser(this.cookieService.get(CookieConfig.authEmail)).subscribe(
         user => {
           this._user$.next(user);
           this._isAuth$.next(true);
+          this.subscription.unsubscribe();
         }
+        
       );
     } else {
       this._isAuth$.next(false);

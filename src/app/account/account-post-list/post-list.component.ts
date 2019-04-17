@@ -1,7 +1,7 @@
 import { Component, OnDestroy } from '@angular/core';
 import { Post } from './../../models/post';
 import { PostDataService } from './../../shared/post-data.service';
-import { ReplaySubject } from 'rxjs';
+import { ReplaySubject, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-post-list',
@@ -11,6 +11,7 @@ import { ReplaySubject } from 'rxjs';
 export class PostListComponent implements OnDestroy {
 
   posts$: ReplaySubject<Post[]>;
+  private subscription: Subscription;
 
   constructor(
     private postDataService: PostDataService
@@ -19,11 +20,12 @@ export class PostListComponent implements OnDestroy {
   }
 
   ngOnDestroy() {
+    this.subscription && this.subscription.unsubscribe()
   }
 
   deletePost(postToDelete: Post) {
     (postToDelete as any).shade = true;
-    this.postDataService.deletePost(postToDelete.id).subscribe(
+    this.subscription = this.postDataService.deletePost(postToDelete.id).subscribe(
       res => console.log(res)
     );
   }
