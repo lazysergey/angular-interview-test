@@ -1,16 +1,15 @@
-<div class="container st-login">
+<div class="container st-post-edit">
     <div class="row">
-        <div class="col-12 col-sm-4">
+        <div class="col-12">
             <go-back-link></go-back-link>
             <form [formGroup]="postEditForm" (ngSubmit)="onSubmit()">
                 <div class="form-group">
-                    <label for="title">Post title:</label>
-                    <input formControlName="titleControl" type="text" class="form-control" id="title" aria-describedby="titleHelp" placeholder="Enter title">
-                    <small *ngIf="showTitleValidationError" class="form-text text-danger">Title you've provided does not exist.</small>
+                    <label for="titleControl">Post title:</label>
+                    <input [value]="(currentPost$ | async)?.title " formControlName="titleControl" type="text" class="form-control" id="title" aria-describedby="title" placeholder="Enter title">
                 </div>
                 <div class="form-group">
                     <label for="postContent">Post content:</label>
-                    <textarea formControlName="postContentControl" class="form-control" id="postContent" placeholder="Post Content"></textarea>
+                    <textarea [value]="(currentPost$ | async)?.body" formControlName="postContentControl" class="form-control" id="postContent" placeholder="Post Content"></textarea>
                 </div>
                 <button type="submit" class="btn btn-primary">
                     {{buttonTitle$ | async}}

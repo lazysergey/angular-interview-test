@@ -11,14 +11,16 @@ import { of, Observable, Subject, ReplaySubject } from 'rxjs';
   styleUrls: ['./post-details.component.scss']
 })
 export class PostDetailsComponent implements OnInit {
-  postDetails$: ReplaySubject<Post | null>;
-  activatedRouteSubscription: any;
+  // postDetails$: ReplaySubject<Post | null>;
+  // activatedRouteSubscription: any;
+  post$: ReplaySubject<Post[]>;
+
 
   constructor(
     private postDataService: PostDataService,
-    private activatedRoute: ActivatedRoute,
+    // private activatedRoute: ActivatedRoute,
   ) {
-
+    this.post$ = postDataService.currentPost$;
     // this.activatedRoute.params.pipe(
     //   tap(params => console.log(params)),
     //   switchMap(params =>
@@ -35,16 +37,16 @@ export class PostDetailsComponent implements OnInit {
     //     }
     //   }))
     // ).subscribe(this.postDataService.currentPost$);
-    this.activatedRouteSubscription = this.activatedRoute.params.subscribe(
-      this.postDataService.activatedRouteParams
-    )
+    // this.activatedRouteSubscription = this.activatedRoute.params.subscribe(
+      // this.postDataService.activatedRouteParams
+    // )
   }
 
   ngOnInit() {
   }
 
   ngOnDestroy (){
-    this.activatedRouteSubscription.unsubscribe();
+    // this.activatedRouteSubscription.unsubscribe();
   }
 
 }

@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { PostDataService } from './../../shared/post-data.service';
-import { map } from 'rxjs/operators';
+import { map, switchMap, take } from 'rxjs/operators';
+import { Post } from 'src/app/models/post';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-post-edit',
@@ -11,9 +13,8 @@ import { map } from 'rxjs/operators';
 })
 export class PostEditComponent implements OnInit {
   currentPostId: any;
-  buttonTitle: any;
   buttonTitle$: any;
-  currentPost$: any;
+  currentPost$: Subject<Post>;
   activatedRouteSubscription: any;
 
   constructor(
@@ -21,16 +22,10 @@ export class PostEditComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private router: Router,
   ) {
-    
     this.currentPost$ = this.postDataService.currentPost$;
-    // this.route.queryParams.subscribe(params => {
-    //   this.currentPostId = params.id;
-    //   this.buttonTitle = params.id ? "Update" : "Create";
-    // })
-    this.activatedRouteSubscription = this.activatedRoute.params.subscribe(
-      this.postDataService.activatedRouteParams
+    this.buttonTitle$ = this.currentPost$.pipe(
+      map((post: Post) => post.id ? 'Update' : 'Create')
     )
-    this.buttonTitle$ = map(this.currentPost$, post => post.id ? 'Update' : 'Create')
   }
 
   public postEditForm: FormGroup;
@@ -39,18 +34,12 @@ export class PostEditComponent implements OnInit {
 
   ngOnInit() {
     this.postEditForm = new FormGroup({
-      titleControl: new FormControl(
-        this.currentPostId ? this.postDataService.userPosts.find(p => p.id == this.currentPostId).title : '',
-        [Validators.required]),
-      postContentControl: new FormControl(
-        this.currentPostId ? this.postDataService.userPosts.find(p => p.id == this.currentPostId).body : '',
-        [Validators.required]),
+      titleControl: new FormControl([Validators.required]),
+      postContentControl: new FormControl([Validators.required]),
     });
   }
 
-  ngOnDestroy() {
-    this.activatedRouteSubscription.unsubscribe();
-  }
+  ngOnDestroy() { }
 
 
   onSubmit() {
@@ -59,16 +48,19 @@ export class PostEditComponent implements OnInit {
     }
 
     if (this.postEditForm.valid) {
-      this.postDataService.updatePost(
-        {
-          id: this.currentPostId,
-          title: this.postEditForm.controls.titleControl.value,
-          body: this.postEditForm.controls.postContentControl.value
-        }
-      ).subscribe(_ => {
+      this.currentPost$.pipe(
+        switchMap(post =>
+          this.postDataService.updatePost(
+            {
+              id: post.id,
+              title: this.postEditForm.controls.titleControl.value,
+              body: this.postEditForm.controls.postContentControl.value
+            })
+        )
+      ).subscribe(res => {
         this.router.navigate(["/account/posts"]);
-      })
-    }
+      });
+    } 
   }
 
 }

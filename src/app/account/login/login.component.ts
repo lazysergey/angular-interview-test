@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent implements OnInit {
   public loginForm: FormGroup;
-  public showEmailValidationError: boolean;
+  public emailDoesNotExist: boolean;
 
   constructor(
     private authService: AuthService,
@@ -27,7 +27,7 @@ export class LoginComponent implements OnInit {
     });
 
     this.loginForm.controls.emailControl.valueChanges.subscribe(res => {
-      this.showEmailValidationError = false;
+      this.emailDoesNotExist = false;
     })
   }
 
@@ -41,7 +41,7 @@ export class LoginComponent implements OnInit {
         this.loginForm.controls.passwordControl.value
       ).subscribe(
         res => this.router.navigate(["/account"]),
-        err => this.showEmailValidationError = true
+        err => this.emailDoesNotExist = true
       );
     }
   }

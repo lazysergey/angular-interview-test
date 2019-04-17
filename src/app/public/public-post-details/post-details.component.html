@@ -3,16 +3,16 @@
     <div class="col-12">
       <go-back-link></go-back-link>
       <h1>
-        {{(postDataService.currentPost$ | async)?.title}}
+        {{(post$ | async)?.title}}
       </h1>
       <p>
-        {{(postDataService.currentPost$ | async)?.body}}
+        {{(post$ | async)?.body}}
       </p>
       <p>
-        by {{(postDataService.currentPost$ | async)?.userId}}
+        by {{(post$ | async)?.userId}}
       </p>
     </div>
-    <h1>{{postDataService.currentPost$.userId | async}}</h1>
+    <h1>{{post$.userId | async}}</h1>
 
   </div>
 </div>

@@ -5,7 +5,7 @@
                 <div class="form-group">
                     <label for="inputEmail">Email address</label>
                     <input formControlName="emailControl" type="email" class="form-control" id="inputEmail" aria-describedby="emailHelp" placeholder="Enter email">
-                    <small *ngIf="showEmailValidationError" class="form-text text-danger">Email you've provided does not exist.</small>
+                    <small *ngIf="emailDoesNotExist" class="form-text text-danger">Email you've provided does not exist.</small>
                     <small class="form-text text-success">try: Sincere@april.biz</small>
                 </div>
                 <div class="form-group">

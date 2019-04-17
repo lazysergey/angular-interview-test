@@ -2,7 +2,7 @@ import { AuthService } from './../../shared/auth.service';
 import { Component, OnInit } from '@angular/core';
 import { User } from '../../models/user';
 import { Router } from '@angular/router';
-import { timer, ReplaySubject } from 'rxjs';
+import { timer, ReplaySubject, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-account',
@@ -10,7 +10,7 @@ import { timer, ReplaySubject } from 'rxjs';
   styleUrls: ['./account.component.scss']
 })
 export class AccountComponent implements OnInit {
-  public user$: ReplaySubject<User>;
+  public user$: Observable<User>;
 
   constructor(
     private authService: AuthService

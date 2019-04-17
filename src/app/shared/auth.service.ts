@@ -11,17 +11,16 @@ import { routerNgProbeToken } from '@angular/router/src/router_module';
 @Injectable({
   providedIn: 'root'
 })
-export class AuthService implements OnDestroy {
-  public user: User;
-  public isAuth: boolean;
-  public user$: ReplaySubject<User> = new ReplaySubject<User>(1);
-  public isAuth$: ReplaySubject<boolean> = new ReplaySubject<boolean>(1);
+export class AuthService {
+  private _user$: ReplaySubject<User> = new ReplaySubject<User>(1);//we need replay subject for late subscribers e.g. account component 
+  public readonly user$: Observable<User> = this._user$.asObservable();
+  private _isAuth$: ReplaySubject<boolean> = new ReplaySubject<boolean>(1);
+  public readonly isAuth$: Observable<boolean> = this._isAuth$.asObservable();
 
   constructor(
     private cookieService: CookieService,
     private http: HttpClient
   ) {
-    this.isAuth$.subscribe(_ => console.log(_))
     this.checkLoginStatus();
   }
 
@@ -33,31 +32,20 @@ export class AuthService implements OnDestroy {
     if (this.cookieService.get(CookieConfig.authToken)) {
       this.getUser(this.cookieService.get(CookieConfig.authEmail)).subscribe(
         user => {
-          this.user$.next(user);
-          this.isAuth$.next(true);
+          this._user$.next(user);
+          this._isAuth$.next(true);
         }
       );
     } else {
-      this.isAuth$.next(false);
+      this._isAuth$.next(false);
     }
   }
 
-  // isAuthChanges(): Observable<boolean> {
-  //   return interval(1000).pipe(
-  //     switchMap(_ => of(!!this.cookieService.get(CookieConfig.authToken))),
-  //     distinctUntilChanged(),
-  //     map(isAuth => {
-  //       this.isAuth = isAuth;
-  //       return isAuth;
-  //     }),
-  //   );
-  // }
-
   doLogout(): void {
     this.cookieService.delete(CookieConfig.authToken);
-    // this.user$.next(null);
-    this.isAuth$.next(false);
+    this._isAuth$.next(false);
   }
+
   private getUser(email: string): Observable<User> {
     return this.getUsers().pipe(
       map(users => users.find(u => u.email.toLowerCase() == email.toLowerCase()))
@@ -73,14 +61,10 @@ export class AuthService implements OnDestroy {
         const expirationDate = new Date(Date.now() + 1000 * 60 * 10);
         this.cookieService.set(CookieConfig.authToken, btoa('random_token'), expirationDate);
         this.cookieService.set(CookieConfig.authEmail, user.email, expirationDate);
-        this.user$.next(user);
-        this.isAuth$.next(true);
+        this._user$.next(user);
+        this._isAuth$.next(true);
         return of(user);
       })
     )
-  }
-
-  ngOnDestroy() {
-    // this.isAuthSubscription.unsubscribe();
   }
 }

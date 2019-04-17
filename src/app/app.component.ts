@@ -8,7 +8,6 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'intStuccoMedia';
 
   constructor() { }
 }
