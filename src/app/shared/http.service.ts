@@ -12,7 +12,7 @@ export class HttpService {
     private http: HttpClient,
   ) { }
 
-  deletePost(id: number) {
+  doDeletePost(id: number) {
     console.log(`delete post ${id}`)
     return this.http.delete(`https://jsonplaceholder.typicode.com/posts/${id}`);
   }
@@ -24,11 +24,11 @@ export class HttpService {
   getAllPosts(): Observable<Post[]> {
     return this.http.get<Post[]>("https://jsonplaceholder.typicode.com/posts");
   }
-  doCreate(post: Post): Observable<Post> {
+  doCreatePost(post: Post): Observable<Post> {
     return this.http.post<Post>("https://jsonplaceholder.typicode.com/posts/", post);
   }
 
-  doUpdate(post: Post): Observable<Post> {
+  doUpdatePost(post: Post): Observable<Post> {
     return this.http.put<Post>(`https://jsonplaceholder.typicode.com/posts/${post.id}`, post);
   }
 

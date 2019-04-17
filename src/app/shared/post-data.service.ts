@@ -46,7 +46,7 @@ export class PostDataService {
     console.log(post);
     if (post.id) {
       return zip(
-        this.httpService.doUpdate(post),
+        this.httpService.doUpdatePost(post),
         this.currentUserAllPost$,
         (post: Post, currentUserPosts: Post[]) => {
           currentUserPosts[currentUserPosts.findIndex(p => p.id == post.id)] = post;
@@ -55,7 +55,7 @@ export class PostDataService {
       );
     } else {
       //TODO: loads last post
-      return this.httpService.doCreate(post).pipe(
+      return this.httpService.doCreatePost(post).pipe(
         map(res => {
           this.userPosts.push(post);
           return this.userPosts;
@@ -102,9 +102,7 @@ export class PostDataService {
 
   deletePost(id: number): Observable<any> {
     return zip(
-      this.httpService.deletePost(id).pipe(
-        tap(_ => console.log(_)),
-      ),
+      this.httpService.doDeletePost(id),
       this.currentUserAllPost$,
       this.allPosts$,
       (post: Post, currentUserAllPosts: Post[], allPosts: Post[]) => {
