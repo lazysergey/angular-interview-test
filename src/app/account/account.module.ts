@@ -8,6 +8,8 @@ import { CookieService } from 'ngx-cookie-service';
 import { AuthGuard } from '../shared/auth.guard';
 import { PostEditComponent } from './account-post-edit/post-edit.component';
 import { PostListComponent } from './account-post-list/post-list.component';
+import { SharedModule } from '../shared/shared.module';
+
 
 const accountRoutes: Routes = [
   {
@@ -38,11 +40,17 @@ const accountRoutes: Routes = [
 ]
 
 @NgModule({
-  declarations: [LoginComponent, AccountComponent, PostEditComponent, PostListComponent],
+  declarations: [
+    LoginComponent, 
+    AccountComponent, 
+    PostEditComponent, 
+    PostListComponent,
+  ],
   imports: [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    SharedModule,
     RouterModule.forChild(accountRoutes)
   ],
   providers: [

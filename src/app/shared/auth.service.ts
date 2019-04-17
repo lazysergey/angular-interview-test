@@ -55,8 +55,8 @@ export class AuthService implements OnDestroy {
 
   doLogout(): void {
     this.cookieService.delete(CookieConfig.authToken);
-    this.user$.next(null);
-    // this.isAuth$.next(false);
+    // this.user$.next(null);
+    this.isAuth$.next(false);
   }
   private getUser(email: string): Observable<User> {
     return this.getUsers().pipe(

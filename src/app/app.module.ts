@@ -1,3 +1,4 @@
+import { SharedModule } from './shared/shared.module';
 import { PostDataService } from './shared/post-data.service';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
@@ -20,7 +21,8 @@ import { NotFoundPageComponent } from './not-found-page/not-found-page.component
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    SharedModule
   ],
   providers: [PostDataService, CookieService],
   bootstrap: [AppComponent]
