@@ -1,7 +1,7 @@
 <div class="st-post-list container">
   <div class="row">
     <div class="col-12 mb-3">
-      <a href="javascript:void(0)" class="btn btn-primary" routerLink="/account/posts/update">Create</a>
+      <a href="/account/posts/update" class="btn btn-primary" routerLink="/account/posts/update">Create</a>
     </div>
   </div>
   <div class="row">
@@ -10,8 +10,8 @@
         <div class="card-body">
           <h5 class="card-title">{{post.title}}</h5>
           <span>
-            <a href="javascript:void(0)" routerLink="/posts/{{post.id}}" class="card-link text-primary">View</a>
-            <a href="javascript:void(0)" routerLink="/account/posts/update" [queryParams]="{id: post.id}" class="card-link text-black-50">Edit</a>
+            <a href="/posts/{{post.id}}" routerLink="/posts/{{post.id}}" class="card-link text-primary">View</a>
+            <a href="/account/posts/update" routerLink="/account/posts/update" [queryParams]="{id: post.id}" class="card-link text-black-50">Edit</a>
             <a href="javascript:void(0)" (click)="deletePost(post)" class="card-link text-danger">Delete</a>
           </span>
         </div>
