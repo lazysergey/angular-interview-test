@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { PostDataService } from './../../shared/post-data.service';
@@ -11,11 +11,12 @@ import { Subject } from 'rxjs';
   templateUrl: './post-edit.component.html',
   styleUrls: ['./post-edit.component.scss']
 })
-export class PostEditComponent implements OnInit {
+export class PostEditComponent implements OnInit, OnDestroy {
   currentPostId: any;
   buttonTitle$: any;
   currentPost$: Subject<Post>;
   activatedRouteSubscription: any;
+  subscription: any;
 
   constructor(
     private postDataService: PostDataService,
@@ -39,16 +40,13 @@ export class PostEditComponent implements OnInit {
     });
   }
 
-  ngOnDestroy() { }
-
-
   onSubmit() {
     for (let i in this.postEditForm.controls) {
       this.postEditForm.controls[i].markAsTouched();
     }
 
     if (this.postEditForm.valid) {
-      this.currentPost$.pipe(
+      this.subscription = this.currentPost$.pipe(
         switchMap(post =>
           this.postDataService.updatePost(
             {
@@ -61,6 +59,10 @@ export class PostEditComponent implements OnInit {
         this.router.navigate(["/account/posts"]);
       });
     } 
+  }
+
+  ngOnDestroy(){
+    this.subscription.unsubscribe()
   }
 
 }

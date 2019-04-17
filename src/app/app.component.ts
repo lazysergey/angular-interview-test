@@ -1,5 +1,3 @@
-import { AuthService } from './shared/auth.service';
-import { PostDataService } from './shared/post-data.service';
 import { Component } from '@angular/core';
 
 @Component({

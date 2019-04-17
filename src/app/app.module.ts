@@ -10,6 +10,7 @@ import { PostListComponent } from './public/public-post-list/post-list.component
 import { HttpClientModule } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
 import { NotFoundPageComponent } from './not-found-page/not-found-page.component';
+import { HttpService } from './shared/http.service';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,7 @@ import { NotFoundPageComponent } from './not-found-page/not-found-page.component
     HttpClientModule,
     SharedModule
   ],
-  providers: [PostDataService, CookieService],
+  providers: [HttpService, PostDataService, CookieService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

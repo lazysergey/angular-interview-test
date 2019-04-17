@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PostDataService } from '../../shared/post-data.service';
 import { Post } from './../../models/post';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-post-list',
@@ -8,12 +9,12 @@ import { Post } from './../../models/post';
   styleUrls: ['./post-list.component.scss']
 })
 export class PostListComponent implements OnInit {
-  posts: Post[];
+  allPosts$: Observable<Post[]>;
 
   constructor(
     private postDataService: PostDataService
   ) { 
-    this.postDataService.getAllPosts();
+    this.allPosts$ = postDataService.allPosts$;
   }
 
   ngOnInit() {

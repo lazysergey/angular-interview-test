@@ -1,3 +1,4 @@
+import { HttpService } from './http.service';
 import { AuthService } from './../shared/auth.service';
 import { ActivatedRoute, Router, ActivatedRouteSnapshot, ActivationEnd } from '@angular/router';
 import { Injectable } from '@angular/core';
@@ -17,13 +18,11 @@ export class PostDataService {
   currentUserAllPost$: ReplaySubject<any> = new ReplaySubject(1);
   route$: Observable<ActivatedRouteSnapshot>;
   postId$: any;
-  // public activatedRouteParams = new ReplaySubject(1);
-  // pp = new BehaviorSubject(1)
 
 
   constructor(
     private authService: AuthService,
-    private http: HttpClient,
+    private httpService: HttpService,
     private router: Router,
   ) {
     this.route$ = this.router.events.pipe(
@@ -34,45 +33,29 @@ export class PostDataService {
     this.postId$ = this.route$.pipe(
       filter(s => s.url.length > 0 && s.url[0].path === 'posts'),
       map(s => s.params.id || s.queryParams.id),
-      tap(_ => console.log(_)),
+      // tap(_ => console.log(_)),
     );
 
     this.loadCurrentPost();
     this.loadAllPosts();
     this.loadCurrentUserPosts();
 
-    // this.postParams$.subscribe(s => console.log(s));
-
-    // this.deleteAction$
-
-    //   .subscribe((id, allPosts) => {
-    //     this.pp.getValue()
-    //     this.allPosts$.next(allPosts.filter(obj => obj.id !== id))
-    //   })
-
-
-    // currentPost$: ReplaySubject<Post[]> = combineLatest(this.allPosts$, router).pipe(
-    //   map(
-    //     (allPosts, current) => {
-    //         return allPosts
-    //     }),
-
-    // );
   }
 
   updatePost(post: Post): Observable<any> {
     console.log(post);
     if (post.id) {
       return zip(
-        this.http.put(`https://jsonplaceholder.typicode.com/posts/${post.id}`, post),
+        this.httpService.doUpdate(post),
         this.currentUserAllPost$,
-        (post: Post, allPosts: Post[]) => {
-          allPosts[allPosts.findIndex(p => p.id == post.id)] = post;
-          this.currentUserAllPost$.next(allPosts)
+        (post: Post, currentUserPosts: Post[]) => {
+          currentUserPosts[currentUserPosts.findIndex(p => p.id == post.id)] = post;
+          this.currentUserAllPost$.next(currentUserPosts);
         }
       );
     } else {
-      return this.http.post("https://jsonplaceholder.typicode.com/posts/", post).pipe(
+      //TODO: loads last post
+      return this.httpService.doCreate(post).pipe(
         map(res => {
           this.userPosts.push(post);
           return this.userPosts;
@@ -84,9 +67,9 @@ export class PostDataService {
   loadCurrentPost() {
     this.postId$.pipe(
       filter((id: number) => id != undefined),
-      tap(_ => console.log("POSTID", _)),
+      // tap(_ => console.log("POSTID", _)),
       switchMap((id: number) =>
-        this.getPost(id)
+        this.httpService.getPost(id)
       ),
     ).pipe(
       map((postDetails => {
@@ -99,7 +82,7 @@ export class PostDataService {
   }
 
   loadAllPosts() {
-    this.getAllPosts().subscribe(
+    this.httpService.getAllPosts().subscribe(
       posts => this.allPosts$.next(posts)
     )
   }
@@ -117,35 +100,24 @@ export class PostDataService {
     ).subscribe(this.currentUserAllPost$)
   }
 
-  getAllPosts(): Observable<Post[]> {
-    return this.http.get<Post[]>("https://jsonplaceholder.typicode.com/posts");
-  }
-
-  getAllUsersPosts(userId: number): Observable<Post[]> {
-    return this.getAllPosts().pipe(
-      map((posts: Post[]) => posts.filter((p: Post) => p.userId === userId)),
-      // tap(posts => {
-      //   this.userPosts = posts;
-      //   window["p1"] = posts;
-      // })
-    );
-  }
-
-  getPost(id: number): Observable<Post> {
-    console.log("GETTING POST", id);
-    return this.http.get<Post>(`https://jsonplaceholder.typicode.com/posts/${id}`).pipe(
-      catchError(err => {
-        return empty();
-      }));
-  }
-
   deletePost(id: number): Observable<any> {
-    return this.http.delete(`https://jsonplaceholder.typicode.com/posts/${id}`).pipe(
-      map(res => {
-        const index = this.userPosts.findIndex(p => p.id == id);
-        this.userPosts.splice(index, 1);
-        return this.userPosts;
-      })
-    )
+    return zip(
+      this.httpService.deletePost(id).pipe(
+        tap(_ => console.log(_)),
+      ),
+      this.currentUserAllPost$,
+      this.allPosts$,
+      (post: Post, currentUserAllPosts: Post[], allPosts: Post[]) => {
+        console.log("deleting")
+        console.log(post)
+        const indexInCurrentPosts = currentUserAllPosts.findIndex(p => p.id == post.id);
+        currentUserAllPosts.splice(indexInCurrentPosts, 1);
+        this.currentUserAllPost$.next(currentUserAllPosts);
+
+        const indexInAllPosts = this.userPosts.findIndex(p => p.id == post.id);
+        allPosts.splice(indexInAllPosts, 1);
+        this.allPosts$.next(allPosts)
+      }
+    );
   }
 }

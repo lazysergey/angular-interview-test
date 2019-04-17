@@ -13,7 +13,7 @@ import { of, Observable, Subject, ReplaySubject } from 'rxjs';
 export class PostDetailsComponent implements OnInit {
   // postDetails$: ReplaySubject<Post | null>;
   // activatedRouteSubscription: any;
-  post$: ReplaySubject<Post[]>;
+  post$: ReplaySubject<Post>;
 
 
   constructor(
