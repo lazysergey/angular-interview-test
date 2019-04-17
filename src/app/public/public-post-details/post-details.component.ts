@@ -10,11 +10,15 @@ import { ReplaySubject } from 'rxjs';
   templateUrl: './post-details.component.html',
   styleUrls: ['./post-details.component.scss']
 })
-export class PostDetailsComponent {
+export class PostDetailsComponent implements OnInit {
   public post$: ReplaySubject<Post>;
 
-  constructor(postDataService: PostDataService,
+  constructor(
+    postDataService: PostDataService,
   ) {
     this.post$ = postDataService.currentPost$;
   }
+
+  ngOnInit() { }
+
 }

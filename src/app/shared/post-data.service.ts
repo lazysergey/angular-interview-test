@@ -43,14 +43,22 @@ export class PostDataService {
   }
 
   updatePost(post: Post): Observable<any> {
-    console.log(post);
     if (post.id) {
       return zip(
         this.httpService.doUpdatePost(post),
         this.currentUserAllPost$,
-        (post: Post, currentUserPosts: Post[]) => {
-          currentUserPosts[currentUserPosts.findIndex(p => p.id == post.id)] = post;
-          this.currentUserAllPost$.next(currentUserPosts);
+        this.allPosts$,
+        (res, currentUserAllPosts: Post[], allPosts: Post[]) => {
+          if (currentUserAllPosts.length) {
+            const indexInCurrentPosts = currentUserAllPosts.findIndex(p => p.id == post.id);
+            currentUserAllPosts[indexInCurrentPosts] = post;
+            this.currentUserAllPost$.next(currentUserAllPosts);
+          }
+          if (allPosts.length) {
+            const indexInAllPosts = allPosts.findIndex(p => p.id == post.id);
+            allPosts[indexInAllPosts] = post;
+            this.allPosts$.next(allPosts)
+          }
         }
       );
     } else {
@@ -81,13 +89,12 @@ export class PostDataService {
 
   loadAllPosts() {
     this.httpService.getAllPosts().subscribe(
-      posts => this.allPosts$.next(posts)
+      this.allPosts$
     )
   }
 
   loadCurrentUserPosts() {
     this.authService.user$.pipe(
-      tap(_ => console.log(_)),
       switchMap(
         (user) => this.allPosts$.pipe(
           map((posts: Post[]) => {
