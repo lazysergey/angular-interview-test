@@ -1,8 +1,7 @@
 import { Component, OnDestroy } from '@angular/core';
-import { Post } from 'src/app/models/post';
-import { PostDataService } from 'src/app/shared/post-data.service';
-import { AuthService } from 'src/app/shared/auth.service';
-import { Subscription, ReplaySubject } from 'rxjs';
+import { Post } from './../../models/post';
+import { PostDataService } from './../../shared/post-data.service';
+import { ReplaySubject } from 'rxjs';
 
 @Component({
   selector: 'app-post-list',

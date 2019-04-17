@@ -1,7 +1,7 @@
 <div class="st-post-details container">
   <div class="row">
     <div class="col-12">
-      <a href="javascript:void(0)" (click)="goBack()">&lt;&nbsp;Back</a>
+      <go-back-link></go-back-link>
       <h1>
         {{(postDataService.currentPost$ | async)?.title}}
       </h1>

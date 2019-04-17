@@ -1,6 +1,6 @@
 import { AuthService } from './../../shared/auth.service';
 import { Component, OnInit } from '@angular/core';
-import { User } from 'src/app/models/user';
+import { User } from '../../models/user';
 import { Router } from '@angular/router';
 import { timer, ReplaySubject } from 'rxjs';
 

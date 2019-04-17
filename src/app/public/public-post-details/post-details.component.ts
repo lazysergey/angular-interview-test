@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { PostDataService } from '../../shared/post-data.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { switchMap, tap, map } from 'rxjs/operators';
-import { Post } from 'src/app/models/post';
+import { Post } from './../../models/post';
 import { of, Observable, Subject, ReplaySubject } from 'rxjs';
 
 @Component({
@@ -17,7 +17,6 @@ export class PostDetailsComponent implements OnInit {
   constructor(
     private postDataService: PostDataService,
     private activatedRoute: ActivatedRoute,
-    private router: Router
   ) {
 
     // this.activatedRoute.params.pipe(
@@ -46,10 +45,6 @@ export class PostDetailsComponent implements OnInit {
 
   ngOnDestroy (){
     this.activatedRouteSubscription.unsubscribe();
-  }
-
-  goBack(){
-    return history ? history.back() : this.router.navigate(['posts']);
   }
 
 }

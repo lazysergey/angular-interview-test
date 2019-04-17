@@ -1,4 +1,4 @@
-import { AuthService } from 'src/app/shared/auth.service';
+import { AuthService } from './../shared/auth.service';
 import { ActivatedRoute, Router, ActivatedRouteSnapshot } from '@angular/router';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -68,6 +68,7 @@ export class PostDataService {
 
   loadCurrentUserPosts() {
     this.authService.user$.pipe(
+      tap(_ => console.log(_)),
       switchMap(
         (user) => this.allPosts$.pipe(
           map((posts: Post[]) => {

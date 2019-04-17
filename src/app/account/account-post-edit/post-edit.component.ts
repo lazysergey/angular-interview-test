@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { PostDataService } from 'src/app/shared/post-data.service';
+import { PostDataService } from './../../shared/post-data.service';
 import { map } from 'rxjs/operators';
 
 @Component({
@@ -14,6 +14,7 @@ export class PostEditComponent implements OnInit {
   buttonTitle: any;
   buttonTitle$: any;
   currentPost$: any;
+  activatedRouteSubscription: any;
 
   constructor(
     private postDataService: PostDataService,
@@ -22,10 +23,10 @@ export class PostEditComponent implements OnInit {
   ) {
     
     this.currentPost$ = this.postDataService.currentPost$;
-    this.route.queryParams.subscribe(params => {
-      this.currentPostId = params.id;
-      this.buttonTitle = params.id ? "Update" : "Create";
-    })
+    // this.route.queryParams.subscribe(params => {
+    //   this.currentPostId = params.id;
+    //   this.buttonTitle = params.id ? "Update" : "Create";
+    // })
     this.activatedRouteSubscription = this.activatedRoute.params.subscribe(
       this.postDataService.activatedRouteParams
     )

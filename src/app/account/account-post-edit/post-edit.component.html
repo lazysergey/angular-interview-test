@@ -1,6 +1,7 @@
 <div class="container st-login">
     <div class="row">
         <div class="col-12 col-sm-4">
+            <go-back-link></go-back-link>
             <form [formGroup]="postEditForm" (ngSubmit)="onSubmit()">
                 <div class="form-group">
                     <label for="title">Post title:</label>
@@ -10,9 +11,9 @@
                 <div class="form-group">
                     <label for="postContent">Post content:</label>
                     <textarea formControlName="postContentControl" class="form-control" id="postContent" placeholder="Post Content"></textarea>
-                </div>                
+                </div>
                 <button type="submit" class="btn btn-primary">
-                  {{buttonTitle$ | async}}
+                    {{buttonTitle$ | async}}
                 </button>
             </form>
 
