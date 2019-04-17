@@ -1,6 +1,6 @@
 <div class="st-post-list container">
   <div class="row">
-    <div class="col-6 col-sm-3 post" *ngFor="let post of posts" >
+    <div class="col-6 col-sm-3 post" *ngFor="let post of (postDataService.allPosts$ | async )" >
       <a class="" href="/posts/{{post.id}}" routerLink="/posts/{{post.id}}">
         <span class="post__title">
           {{post.title}}

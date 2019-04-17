@@ -2,7 +2,7 @@ import { AuthService } from './../../shared/auth.service';
 import { Component, OnInit } from '@angular/core';
 import { User } from 'src/app/models/user';
 import { Router } from '@angular/router';
-import { timer } from 'rxjs';
+import { timer, ReplaySubject } from 'rxjs';
 
 @Component({
   selector: 'app-account',
@@ -10,14 +10,12 @@ import { timer } from 'rxjs';
   styleUrls: ['./account.component.scss']
 })
 export class AccountComponent implements OnInit {
-  public user: User;
+  public user$: ReplaySubject<User>;
 
   constructor(
-    private authService: AuthService,
-    private router: Router,
+    private authService: AuthService
   ) {
-    this.user = this.authService.currentUser;
-    timer(1000).subscribe(data => this.router.navigate(['/account/posts']))
+    this.user$ = this.authService.user$;
   }
 
   ngOnInit() {

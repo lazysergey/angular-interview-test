@@ -12,7 +12,7 @@
                     <textarea formControlName="postContentControl" class="form-control" id="postContent" placeholder="Post Content"></textarea>
                 </div>                
                 <button type="submit" class="btn btn-primary">
-                  {{buttonTitle}}
+                  {{buttonTitle$ | async}}
                 </button>
             </form>
 

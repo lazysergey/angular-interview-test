@@ -2,8 +2,9 @@
   <div class="row">
     <div class="col-12">
       <h1>
-          Welcome, {{user.name}}!
+          Welcome, {{(user$ | async).name}}!
       </h1>
+      <a href="/account/posts" routerLink="/account/posts">Go to Posts</a>
     </div>
   </div>
 </div>

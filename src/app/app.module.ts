@@ -8,12 +8,14 @@ import { PostDetailsComponent } from './public/public-post-details/post-details.
 import { PostListComponent } from './public/public-post-list/post-list.component';
 import { HttpClientModule } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
+import { NotFoundPageComponent } from './not-found-page/not-found-page.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     PostDetailsComponent,
-    PostListComponent
+    PostListComponent,
+    NotFoundPageComponent,
   ],
   imports: [
     BrowserModule,

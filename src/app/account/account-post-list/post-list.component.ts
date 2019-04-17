@@ -2,7 +2,7 @@ import { Component, OnDestroy } from '@angular/core';
 import { Post } from 'src/app/models/post';
 import { PostDataService } from 'src/app/shared/post-data.service';
 import { AuthService } from 'src/app/shared/auth.service';
-import { Subscription } from 'rxjs';
+import { Subscription, ReplaySubject } from 'rxjs';
 
 @Component({
   selector: 'app-post-list',
@@ -11,33 +11,24 @@ import { Subscription } from 'rxjs';
 })
 export class PostListComponent implements OnDestroy {
 
-  posts: Post[];
-  subscription: Subscription;
+  posts$: ReplaySubject<Post[]>;
 
   constructor(
-    private postDataService: PostDataService,
-    private authService: AuthService
+    private postDataService: PostDataService
   ) {
-    this.subscription = this.postDataService.getAllUsersPosts(
-      this.authService.currentUser.id
-    ).subscribe((posts: Post[]) => {
-      window["p2"] = posts;
-      this.posts = posts;
-    })
+    this.posts$ = postDataService.currentUserAllPost$;
+    // this.postDataService.currentUserAllPost$.subscribe(
+    //   _ => console.log(_)
+    // );
+    // this.postDataService.allPosts$.next("1234132");
   }
+
   ngOnDestroy() {
-    this.subscription.unsubscribe();
+    // this.subscription.unsubscribe();
   }
 
   deletePost(postToDelete: Post) {
     (postToDelete as any).shade = true;
-    this.postDataService.deletePost(postToDelete.id).subscribe(
-      (res) => {
-        console.log(res);
-        this.posts = res;
-        // this.posts = this.posts.filter(p => p.id !== postToDelete.id)
-      },
-      err => (postToDelete as any).shade = false
-    )
+    this.postDataService.deletePost(postToDelete.id);
   }
 }

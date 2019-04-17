@@ -1,17 +1,18 @@
-<div class="st-post-details container" *ngIf="postDetails">
+<div class="st-post-details container">
   <div class="row">
     <div class="col-12">
       <a href="javascript:void(0)" (click)="goBack()">&lt;&nbsp;Back</a>
       <h1>
-        {{postDetails.title}}
+        {{(postDataService.currentPost$ | async)?.title}}
       </h1>
       <p>
-        {{postDetails.body}}
+        {{(postDataService.currentPost$ | async)?.body}}
       </p>
       <p>
-        by {{postDetails.userId}}
+        by {{(postDataService.currentPost$ | async)?.userId}}
       </p>
     </div>
+    <h1>{{postDataService.currentPost$.userId | async}}</h1>
 
   </div>
 </div>

@@ -1,31 +1,18 @@
 <div class="st-post-list container">
   <div class="row">
     <div class="col-12 mb-3">
-        <a href="javascript:void(0)" class="btn btn-primary" routerLink="/account/posts/update">Create</a>
+      <a href="javascript:void(0)" class="btn btn-primary" routerLink="/account/posts/update">Create</a>
     </div>
   </div>
   <div class="row">
-    <!-- <div class="col-6 col-sm-3 post" *ngFor="let post of posts" >
-        <a class="" href="/posts/{{post.id}}" [routerLink]="[post.id]">
-          <span class="post__title">
-            {{post.title}}
-          </span>
-          <span class="post__body">
-            {{post.body}}
-          </span>
-          <a href="javascript:void(0)" class="btn-link text-success">Edit</a>
-          <a href="javascript:void(0)" class="btn-link text-danger">Delete</a>
-        </a>
-      </div> -->
-    <div class="col-6 mb-3 card__wrapper" *ngFor="let post of posts">
+    <div class="col-6 mb-3 card__wrapper" *ngFor="let post of (posts$ | async)">
       <div class="card border-secondary" [ngClass]="{'shade': post.shade}">
         <div class="card-body">
           <h5 class="card-title">{{post.title}}</h5>
-          <!-- <p class="card-text">{{post.body}}</p> -->
           <span>
-              <a href="javascript:void(0)" routerLink="/posts/{{post.id}}" class="card-link text-primary">View</a>
-              <a href="javascript:void(0)" routerLink="/account/posts/update" [queryParams]="{id: post.id}" class="card-link text-black-50">Edit</a>
-              <a href="javascript:void(0)" (click)="deletePost(post)" class="card-link text-danger">Delete</a>
+            <a href="javascript:void(0)" routerLink="/posts/{{post.id}}" class="card-link text-primary">View</a>
+            <a href="javascript:void(0)" routerLink="/account/posts/update" [queryParams]="{id: post.id}" class="card-link text-black-50">Edit</a>
+            <a href="javascript:void(0)" (click)="deletePost(post)" class="card-link text-danger">Delete</a>
           </span>
         </div>
       </div>

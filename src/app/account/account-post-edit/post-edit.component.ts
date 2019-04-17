@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { PostDataService } from 'src/app/shared/post-data.service';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-post-edit',
@@ -11,16 +12,24 @@ import { PostDataService } from 'src/app/shared/post-data.service';
 export class PostEditComponent implements OnInit {
   currentPostId: any;
   buttonTitle: any;
+  buttonTitle$: any;
+  currentPost$: any;
 
   constructor(
     private postDataService: PostDataService,
-    private route: ActivatedRoute,
+    private activatedRoute: ActivatedRoute,
     private router: Router,
   ) {
+    
+    this.currentPost$ = this.postDataService.currentPost$;
     this.route.queryParams.subscribe(params => {
       this.currentPostId = params.id;
       this.buttonTitle = params.id ? "Update" : "Create";
     })
+    this.activatedRouteSubscription = this.activatedRoute.params.subscribe(
+      this.postDataService.activatedRouteParams
+    )
+    this.buttonTitle$ = map(this.currentPost$, post => post.id ? 'Update' : 'Create')
   }
 
   public postEditForm: FormGroup;
@@ -36,16 +45,18 @@ export class PostEditComponent implements OnInit {
         this.currentPostId ? this.postDataService.userPosts.find(p => p.id == this.currentPostId).body : '',
         [Validators.required]),
     });
-
-
-    // this.emailControl.valueChanges.subscribe(res => console.log(res));
   }
+
+  ngOnDestroy() {
+    this.activatedRouteSubscription.unsubscribe();
+  }
+
 
   onSubmit() {
     for (let i in this.postEditForm.controls) {
       this.postEditForm.controls[i].markAsTouched();
     }
-    // "Sincere@april.biz" || 
+
     if (this.postEditForm.valid) {
       this.postDataService.updatePost(
         {

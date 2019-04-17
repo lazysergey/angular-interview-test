@@ -16,18 +16,7 @@ export class LoginComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
   ) {
-    window['auth'] = this.authService;
-
-    this.authService.isAuthChanges().subscribe()
-
-    // this.authService.doLogin("asdf@fasd.e", 1234).subscribe(
-    //   res => console.log(res),
-    //   err => console.log(err)
-    // );
-    // this.authService.doLogin("Sincere@april.biz", 1234).subscribe(
-    //   res => console.log(res),
-    //   err => console.log(err)
-    // );
+    // this.authService.isAuthChanges().subscribe()
   }
 
   ngOnInit() {
@@ -35,21 +24,17 @@ export class LoginComponent implements OnInit {
     this.loginForm = new FormGroup({
       emailControl: new FormControl('', [Validators.email, Validators.required]),
       passwordControl: new FormControl('', [Validators.required]),
-      // checkboxControl: new FormControl('', [Validators.requiredTrue]),
     });
 
     this.loginForm.controls.emailControl.valueChanges.subscribe(res => {
       this.showEmailValidationError = false;
     })
-
-    // this.emailControl.valueChanges.subscribe(res => console.log(res));
   }
 
   onSubmit() {
     for (let i in this.loginForm.controls) {
       this.loginForm.controls[i].markAsTouched();
     }
-    // "Sincere@april.biz" || 
     if (this.loginForm.valid) {
       this.authService.doLogin(
         this.loginForm.controls.emailControl.value,
@@ -60,9 +45,4 @@ export class LoginComponent implements OnInit {
       );
     }
   }
-
-  // doLogout() {
-  //   this.authService.doLogout();
-  // }
-
 }
