@@ -101,7 +101,6 @@ export class PostDataService {
         this._allPosts$,
         (res, currentUserAllPosts: Post[], allPosts: Post[]) => {
           post.id = res.id;
-          post.localMockOnly = true;
           if (currentUserAllPosts.length) {
             currentUserAllPosts.push(post);
             this._currentUserAllPost$.next(currentUserAllPosts);

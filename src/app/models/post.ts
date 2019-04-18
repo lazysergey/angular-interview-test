@@ -5,7 +5,6 @@ export class PostBase {
   title: string;
   body: string;
   userId?: number;
-  localMockOnly?: boolean;
 }
 
 export class Post extends PostBase {
