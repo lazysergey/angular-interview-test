@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Post } from '../models/post';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -11,6 +12,7 @@ export class HttpService {
 
   constructor(
     private _http: HttpClient,
+    private _router: Router
   ) { }
 
   doDeletePost(id: number) {
@@ -21,9 +23,9 @@ export class HttpService {
   getPost(id: number): Observable<Post | {}> {
     return this._http.get<Post>(`https://jsonplaceholder.typicode.com/posts/${id}`).pipe(
       catchError(() => {
+        this._router.navigate(["404"]);
         return of({});
-      }
-      )
+      })
     );
   }
 
@@ -37,6 +39,4 @@ export class HttpService {
   doUpdatePost(post: Post): Observable<Post> {
     return this._http.put<Post>(`https://jsonplaceholder.typicode.com/posts/${post.id}`, post);
   }
-
-
 }

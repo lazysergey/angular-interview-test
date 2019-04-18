@@ -2,8 +2,8 @@ import { HttpService } from './http.service';
 import { AuthService } from './../shared/auth.service';
 import { Router, ActivatedRouteSnapshot, ActivationEnd } from '@angular/router';
 import { Injectable } from '@angular/core';
-import { map, switchMap, filter } from 'rxjs/operators';
-import { Observable, of, ReplaySubject, zip } from 'rxjs';
+import { map, switchMap, filter, tap, } from 'rxjs/operators';
+import { Observable, of, ReplaySubject, zip, combineLatest } from 'rxjs';
 import { Post } from '../models/post';
 
 @Injectable({
@@ -41,14 +41,19 @@ export class PostDataService {
   }
 
   private _loadCurrentPost() {
-    this._postId$.pipe(
-      switchMap((id: number) =>
-        id ? this._httpService.getPost(id) : of({})
-      ),
+    combineLatest(
+      this._postId$,
+      this._allPosts$,
+      (id, allPosts: Post[]) => ({ id: id, post: allPosts.find(p => p.id == id) })
     ).pipe(
-      map((postDetails => {
-        return postDetails;
-      }))
+      tap(_ => console.log(_)),
+      switchMap((res: { post: Post, id: number }) =>
+        !res.post
+          ? res.id
+            ? this._httpService.getPost(res.id)
+            : of({})
+          : of(res.post)
+      )
     ).subscribe(this._currentPost$);
   }
 
@@ -59,6 +64,7 @@ export class PostDataService {
   }
 
   private _loadCurrentUserPosts() {
+
     this._authService.user$.pipe(
       switchMap(
         (user) => this._allPosts$.pipe(
