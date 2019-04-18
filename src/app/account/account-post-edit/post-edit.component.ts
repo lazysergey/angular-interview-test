@@ -21,7 +21,10 @@ export class PostEditComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private router: Router,
   ) {
-    this.currentPost$ = this.postDataService.currentPost$;
+    this.currentPost$.subscribe(post => {
+      this.postEditForm.controls.body.setValue(post.body);
+      this.postEditForm.controls.title.setValue(post.title);
+    })
     this.buttonTitle$ = this.currentPost$.pipe(
       map((post: Post) => post.id ? 'Update' : 'Create')
     )
@@ -33,8 +36,8 @@ export class PostEditComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.postEditForm = new FormGroup({
-      titleControl: new FormControl([Validators.required]),
-      postContentControl: new FormControl([Validators.required]),
+      title: new FormControl('', [Validators.required]),
+      body: new FormControl('', [Validators.required]),
     });
   }
 
@@ -49,17 +52,17 @@ export class PostEditComponent implements OnInit, OnDestroy {
           this.postDataService.updatePost(
             {
               id: post.id,
-              title: this.postEditForm.controls.titleControl.value,
-              body: this.postEditForm.controls.postContentControl.value
+              title: this.postEditForm.controls.title.value,
+              body: this.postEditForm.controls.body.value
             })
         )
       ).subscribe(res => {
         this.router.navigate(["/account/posts"]);
       });
-    } 
+    }
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.subscription && this.subscription.unsubscribe()
   }
 
