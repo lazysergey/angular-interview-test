@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Post } from './../../models/post';
 import { PostDataService } from './../../shared/post-data.service';
-import { ReplaySubject, Subscription } from 'rxjs';
+import { ReplaySubject, Subscription, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-post-list',
@@ -10,7 +10,7 @@ import { ReplaySubject, Subscription } from 'rxjs';
 })
 export class PostListComponent implements OnDestroy, OnInit {
 
-  posts$: ReplaySubject<Post[]>;
+  posts$: Observable<Post[]>;
   private subscription: Subscription;
 
   constructor(

@@ -1,12 +1,10 @@
 import { CookieConfig } from './cookie.config';
 import { HttpClient } from '@angular/common/http';
-import { Injectable, OnInit, OnDestroy } from '@angular/core';
-import { map, catchError, mergeMap, switchMap, distinctUntilChanged } from 'rxjs/operators';
-import { Observable, of, ReplaySubject, merge, Subject, throwError, interval, Subscription } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { map, switchMap} from 'rxjs/operators';
+import { Observable, of, ReplaySubject, throwError, Subscription } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
 import { User } from '../models/user';
-import { Router } from '@angular/router';
-import { routerNgProbeToken } from '@angular/router/src/router_module';
 
 @Injectable({
   providedIn: 'root'
@@ -31,7 +29,7 @@ export class AuthService {
 
   checkLoginStatus() {
     if (this.cookieService.get(CookieConfig.authToken)) {
-      this.subscription = this.getUser(this.cookieService.get(CookieConfig.authEmail)).subscribe(
+      this.subscription = this._getUser(this.cookieService.get(CookieConfig.authEmail)).subscribe(
         user => {
           this._user$.next(user);
           this._isAuth$.next(true);
@@ -49,14 +47,14 @@ export class AuthService {
     this._isAuth$.next(false);
   }
 
-  private getUser(email: string): Observable<User> {
+  private _getUser(email: string): Observable<User> {
     return this.getUsers().pipe(
       map(users => users.find(u => u.email.toLowerCase() == email.toLowerCase()))
     );
   }
 
   doLogin(email: string, password: string | number): Observable<User> {
-    return this.getUser(email).pipe(
+    return this._getUser(email).pipe(
       switchMap(user => {
         if (!user) {
           return throwError("Email not exists!")

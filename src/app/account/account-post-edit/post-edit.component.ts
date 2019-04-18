@@ -4,7 +4,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { PostDataService } from './../../shared/post-data.service';
 import { map, switchMap, take } from 'rxjs/operators';
 import { Post } from 'src/app/models/post';
-import { Subject, Subscription } from 'rxjs';
+import { Subject, Subscription, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-post-edit',
@@ -14,7 +14,7 @@ import { Subject, Subscription } from 'rxjs';
 export class PostEditComponent implements OnInit, OnDestroy {
   private subscription: Subscription;
   public buttonTitle$: any;
-  public currentPost$: Subject<Post>;
+  public currentPost$: Observable<Post>;
   public postEditForm: FormGroup;
 
   constructor(

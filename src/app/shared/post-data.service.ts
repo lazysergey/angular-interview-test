@@ -1,39 +1,37 @@
 import { HttpService } from './http.service';
 import { AuthService } from './../shared/auth.service';
-import { ActivatedRoute, Router, ActivatedRouteSnapshot, ActivationEnd } from '@angular/router';
+import { Router, ActivatedRouteSnapshot, ActivationEnd } from '@angular/router';
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { map, catchError, tap, mapTo, switchMap, filter, take } from 'rxjs/operators';
-import { Observable, of, BehaviorSubject, ReplaySubject, from, empty, Subject, combineLatest, zip } from 'rxjs';
-import { Post, PostBase } from '../models/post';
+import { map, switchMap, filter } from 'rxjs/operators';
+import { Observable, of, ReplaySubject, zip } from 'rxjs';
+import { Post } from '../models/post';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PostDataService {
-  userPosts: Post[];
-  deleteAction$ = new Subject<string>()
-  allPosts$: ReplaySubject<Post[]> = new ReplaySubject(1);
-  currentPost$: ReplaySubject<Post> = new ReplaySubject(1);
-  currentUserAllPost$: ReplaySubject<any> = new ReplaySubject(1);
-  route$: Observable<ActivatedRouteSnapshot>;
-  postId$: any;
-
+  private _allPosts$: ReplaySubject<Post[]> = new ReplaySubject(1);
+  private _currentPost$: ReplaySubject<Post> = new ReplaySubject(1);
+  private _currentUserAllPost$: ReplaySubject<any> = new ReplaySubject(1);
+  public readonly allPosts$ = this._allPosts$.asObservable();
+  public readonly currentPost$ = this._currentPost$.asObservable();
+  public readonly currentUserAllPost$ = this._currentUserAllPost$.asObservable();
+  private _route$: Observable<ActivatedRouteSnapshot>;
+  private _postId$: any;
 
   constructor(
     private authService: AuthService,
     private httpService: HttpService,
     private router: Router,
   ) {
-    this.route$ = this.router.events.pipe(
+    this._route$ = this.router.events.pipe(
       filter(e => e instanceof ActivationEnd),
       map(e => (e as ActivationEnd).snapshot)
     );
 
-    this.postId$ = this.route$.pipe(
+    this._postId$ = this._route$.pipe(
       filter(s => s.url.length > 0 && s.url[0].path === 'posts'),
       map(s => s.params.id || s.queryParams.id),
-      // tap(_ => console.log(_)),
     );
 
     this.loadCurrentPost();
@@ -42,84 +40,91 @@ export class PostDataService {
 
   }
 
-  updatePost(post: Post): Observable<any> {
-    if (post.id) {
-      return zip(
-        this.httpService.doUpdatePost(post),
-        this.currentUserAllPost$,
-        this.allPosts$,
-        (res, currentUserAllPosts: Post[], allPosts: Post[]) => {
-          if (currentUserAllPosts.length) {
-            const indexInCurrentPosts = currentUserAllPosts.findIndex(p => p.id == post.id);
-            currentUserAllPosts[indexInCurrentPosts] = post;
-            this.currentUserAllPost$.next(currentUserAllPosts);
-          }
-          if (allPosts.length) {
-            const indexInAllPosts = allPosts.findIndex(p => p.id == post.id);
-            allPosts[indexInAllPosts] = post;
-            this.allPosts$.next(allPosts)
-          }
-        }
-      );
-    } else {
-      //FIXME: component here loads last post in edit form
-      return this.httpService.doCreatePost(post).pipe(
-        map(res => {
-          this.userPosts.push(post);
-          return this.userPosts;
-        })
-      );
-    }
-  }
-
-  loadCurrentPost() {
-    this.postId$.pipe(
-      filter((id: number) => id != undefined),
+  private loadCurrentPost() {
+    this._postId$.pipe(
       switchMap((id: number) =>
-        this.httpService.getPost(id)
+        id ? this.httpService.getPost(id) : of({})
       ),
     ).pipe(
       map((postDetails => {
-        if (postDetails) {
-          return postDetails;
-        }
+        return postDetails;
       }))
-    ).subscribe(this.currentPost$);
+    ).subscribe(this._currentPost$);
   }
 
-  loadAllPosts() {
+  private loadAllPosts() {
     this.httpService.getAllPosts().subscribe(
-      this.allPosts$
+      this._allPosts$
     )
   }
 
-  loadCurrentUserPosts() {
+  private loadCurrentUserPosts() {
     this.authService.user$.pipe(
       switchMap(
-        (user) => this.allPosts$.pipe(
+        (user) => this._allPosts$.pipe(
           map((posts: Post[]) => {
             return posts.filter((p: Post) => p.userId === user.id)
           }),
         )
       )
-    ).subscribe(this.currentUserAllPost$)
+    ).subscribe(this._currentUserAllPost$)
+  }
+
+  updatePost(post: Post): Observable<any> {
+    if (post.id) {
+      return zip(
+        this.httpService.doUpdatePost(post),
+        this._currentUserAllPost$,
+        this._allPosts$,
+        (res, currentUserAllPosts: Post[], allPosts: Post[]) => {
+          if (currentUserAllPosts.length) {
+            const indexInCurrentPosts = currentUserAllPosts.findIndex(p => p.id == post.id);
+            currentUserAllPosts[indexInCurrentPosts] = post;
+            this._currentUserAllPost$.next(currentUserAllPosts);
+          }
+          if (allPosts.length) {
+            const indexInAllPosts = allPosts.findIndex(p => p.id == post.id);
+            allPosts[indexInAllPosts] = post;
+            this._allPosts$.next(allPosts)
+          }
+        }
+      );
+    } else {
+      return zip(
+        this.httpService.doCreatePost(post),
+        this._currentUserAllPost$,
+        this._allPosts$,
+        (res, currentUserAllPosts: Post[], allPosts: Post[]) => {
+          post.id = res.id;
+          post.localMockOnly = true;
+          if (currentUserAllPosts.length) {
+            currentUserAllPosts.push(post);
+            this._currentUserAllPost$.next(currentUserAllPosts);
+          }
+          if (allPosts.length) {
+            allPosts.push(post);
+            this._allPosts$.next(allPosts)
+          }
+        }
+      );
+    }
   }
 
   deletePost(id: number): Observable<any> {
     return zip(
       this.httpService.doDeletePost(id),
-      this.currentUserAllPost$,
-      this.allPosts$,
+      this._currentUserAllPost$,
+      this._allPosts$,
       (res, currentUserAllPosts: Post[], allPosts: Post[]) => {
         if (currentUserAllPosts.length) {
           const indexInCurrentPosts = currentUserAllPosts.findIndex(p => p.id == id);
           currentUserAllPosts.splice(indexInCurrentPosts, 1);
-          this.currentUserAllPost$.next(currentUserAllPosts);
+          this._currentUserAllPost$.next(currentUserAllPosts);
         }
         if (allPosts.length) {
           const indexInAllPosts = allPosts.findIndex(p => p.id == id);
           allPosts.splice(indexInAllPosts, 1);
-          this.allPosts$.next(allPosts)
+          this._allPosts$.next(allPosts)
         }
       }
     )

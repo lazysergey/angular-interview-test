@@ -3,7 +3,7 @@ import { PostDataService } from '../../shared/post-data.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { switchMap, tap, map } from 'rxjs/operators';
 import { Post } from './../../models/post';
-import { ReplaySubject } from 'rxjs';
+import { ReplaySubject, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-post-details',
@@ -11,7 +11,7 @@ import { ReplaySubject } from 'rxjs';
   styleUrls: ['./post-details.component.scss']
 })
 export class PostDetailsComponent implements OnInit {
-  public post$: ReplaySubject<Post>;
+  public post$: Observable<Post>;
 
   constructor(
     postDataService: PostDataService,
