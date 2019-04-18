@@ -12,15 +12,17 @@ import { Subject, Subscription } from 'rxjs';
   styleUrls: ['./post-edit.component.scss']
 })
 export class PostEditComponent implements OnInit, OnDestroy {
+  private subscription: Subscription;
   public buttonTitle$: any;
   public currentPost$: Subject<Post>;
-  private subscription: Subscription;
+  public postEditForm: FormGroup;
 
   constructor(
     private postDataService: PostDataService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
   ) {
+    this.initForm();
     this.currentPost$ = this.postDataService.currentPost$;
     this.currentPost$.subscribe(post => {
       this.postEditForm.controls.body.setValue(post.body);
@@ -31,11 +33,9 @@ export class PostEditComponent implements OnInit, OnDestroy {
     )
   }
 
-  public postEditForm: FormGroup;
-  public showEmailValidationError: boolean;
+  ngOnInit() { }
 
-
-  ngOnInit() {
+  initForm() {
     this.postEditForm = new FormGroup({
       title: new FormControl('', [Validators.required]),
       body: new FormControl('', [Validators.required]),
