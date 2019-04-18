@@ -20,11 +20,11 @@ export class PostDataService {
   private _postId$: any;
 
   constructor(
-    private authService: AuthService,
-    private httpService: HttpService,
-    private router: Router,
+    private _authService: AuthService,
+    private _httpService: HttpService,
+    private _router: Router,
   ) {
-    this._route$ = this.router.events.pipe(
+    this._route$ = this._router.events.pipe(
       filter(e => e instanceof ActivationEnd),
       map(e => (e as ActivationEnd).snapshot)
     );
@@ -34,16 +34,16 @@ export class PostDataService {
       map(s => s.params.id || s.queryParams.id),
     );
 
-    this.loadCurrentPost();
-    this.loadAllPosts();
-    this.loadCurrentUserPosts();
+    this._loadCurrentPost();
+    this._loadAllPosts();
+    this._loadCurrentUserPosts();
 
   }
 
-  private loadCurrentPost() {
+  private _loadCurrentPost() {
     this._postId$.pipe(
       switchMap((id: number) =>
-        id ? this.httpService.getPost(id) : of({})
+        id ? this._httpService.getPost(id) : of({})
       ),
     ).pipe(
       map((postDetails => {
@@ -52,14 +52,14 @@ export class PostDataService {
     ).subscribe(this._currentPost$);
   }
 
-  private loadAllPosts() {
-    this.httpService.getAllPosts().subscribe(
+  private _loadAllPosts() {
+    this._httpService.getAllPosts().subscribe(
       this._allPosts$
     )
   }
 
-  private loadCurrentUserPosts() {
-    this.authService.user$.pipe(
+  private _loadCurrentUserPosts() {
+    this._authService.user$.pipe(
       switchMap(
         (user) => this._allPosts$.pipe(
           map((posts: Post[]) => {
@@ -73,7 +73,7 @@ export class PostDataService {
   updatePost(post: Post): Observable<any> {
     if (post.id) {
       return zip(
-        this.httpService.doUpdatePost(post),
+        this._httpService.doUpdatePost(post),
         this._currentUserAllPost$,
         this._allPosts$,
         (res, currentUserAllPosts: Post[], allPosts: Post[]) => {
@@ -91,7 +91,7 @@ export class PostDataService {
       );
     } else {
       return zip(
-        this.httpService.doCreatePost(post),
+        this._httpService.doCreatePost(post),
         this._currentUserAllPost$,
         this._allPosts$,
         (res, currentUserAllPosts: Post[], allPosts: Post[]) => {
@@ -112,7 +112,7 @@ export class PostDataService {
 
   deletePost(id: number): Observable<any> {
     return zip(
-      this.httpService.doDeletePost(id),
+      this._httpService.doDeletePost(id),
       this._currentUserAllPost$,
       this._allPosts$,
       (res, currentUserAllPosts: Post[], allPosts: Post[]) => {

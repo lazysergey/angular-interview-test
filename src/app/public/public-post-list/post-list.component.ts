@@ -12,9 +12,9 @@ export class PostListComponent implements OnInit {
   allPosts$: Observable<Post[]>;
 
   constructor(
-    private postDataService: PostDataService
+    private _postDataService: PostDataService
   ) { 
-    this.allPosts$ = postDataService.allPosts$;
+    this.allPosts$ = this._postDataService.allPosts$;
   }
 
   ngOnInit() {

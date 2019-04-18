@@ -12,18 +12,17 @@ import { Subject, Subscription, Observable } from 'rxjs';
   styleUrls: ['./post-edit.component.scss']
 })
 export class PostEditComponent implements OnInit, OnDestroy {
-  private subscription: Subscription;
+  private _subscription: Subscription;
   public buttonTitle$: any;
   public currentPost$: Observable<Post>;
   public postEditForm: FormGroup;
 
   constructor(
-    private postDataService: PostDataService,
-    private activatedRoute: ActivatedRoute,
-    private router: Router,
+    private _postDataService: PostDataService,
+    private _router: Router,
   ) {
     this.initForm();
-    this.currentPost$ = this.postDataService.currentPost$;
+    this.currentPost$ = this._postDataService.currentPost$;
     this.currentPost$.subscribe(post => {
       this.postEditForm.controls.body.setValue(post.body);
       this.postEditForm.controls.title.setValue(post.title);
@@ -48,9 +47,9 @@ export class PostEditComponent implements OnInit, OnDestroy {
     }
 
     if (this.postEditForm.valid) {
-      this.subscription = this.currentPost$.pipe(
+      this._subscription = this.currentPost$.pipe(
         switchMap(post =>
-          this.postDataService.updatePost(
+          this._postDataService.updatePost(
             {
               id: post.id,
               title: this.postEditForm.controls.title.value,
@@ -58,13 +57,13 @@ export class PostEditComponent implements OnInit, OnDestroy {
             })
         )
       ).subscribe(res => {
-        this.router.navigate(["/account/posts"]);
+        this._router.navigate(["/account/posts"]);
       });
     }
   }
 
   ngOnDestroy() {
-    this.subscription && this.subscription.unsubscribe()
+    this._subscription && this._subscription.unsubscribe()
   }
 
 }

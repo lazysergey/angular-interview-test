@@ -9,25 +9,24 @@ import { ReplaySubject, Subscription, Observable } from 'rxjs';
   styleUrls: ['./post-list.component.scss']
 })
 export class PostListComponent implements OnDestroy, OnInit {
-
-  posts$: Observable<Post[]>;
-  private subscription: Subscription;
+  public posts$: Observable<Post[]>;
+  private _subscription: Subscription;
 
   constructor(
-    private postDataService: PostDataService
+    private _postDataService: PostDataService
   ) {
-    this.posts$ = postDataService.currentUserAllPost$;
+    this.posts$ = _postDataService.currentUserAllPost$;
   }
 
   ngOnInit() { }
 
   ngOnDestroy() {
-    this.subscription && this.subscription.unsubscribe()
+    this._subscription && this._subscription.unsubscribe()
   }
 
   deletePost(postToDelete: Post) {
     (postToDelete as any).shade = true;
-    this.subscription = this.postDataService.deletePost(postToDelete.id).subscribe(
+    this._subscription = this._postDataService.deletePost(postToDelete.id).subscribe(
       res => console.log(res)
     );
   }

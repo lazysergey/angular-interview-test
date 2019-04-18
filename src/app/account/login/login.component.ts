@@ -12,15 +12,15 @@ import { Subscription } from 'rxjs';
 export class LoginComponent implements OnInit, OnDestroy {
   public loginForm: FormGroup;
   public emailDoesNotExist: boolean;
-  private subscription: Subscription;
+  private _subscription: Subscription;
 
   constructor(
-    private authService: AuthService,
-    private router: Router,
+    private _authService: AuthService,
+    private _router: Router,
   ) { }
 
   ngOnInit() {
-    this.authService.doLogout();
+    this._authService.doLogout();
     this.loginForm = new FormGroup({
       emailControl: new FormControl('', [Validators.email, Validators.required]),
       passwordControl: new FormControl('', [Validators.required]),
@@ -31,7 +31,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     })
   }
   ngOnDestroy() {
-    this.subscription && this.subscription.unsubscribe()
+    this._subscription && this._subscription.unsubscribe()
   }
 
   onSubmit() {
@@ -39,11 +39,11 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.loginForm.controls[i].markAsTouched();
     }
     if (this.loginForm.valid) {
-      this.subscription = this.authService.doLogin(
+      this._subscription = this._authService.doLogin(
         this.loginForm.controls.emailControl.value,
         this.loginForm.controls.passwordControl.value
       ).subscribe(
-        res => this.router.navigate(["/account"]),
+        res => this._router.navigate(["/account"]),
         err => this.emailDoesNotExist = true
       );
     }

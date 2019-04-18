@@ -9,13 +9,13 @@ import { Router } from '@angular/router';
 export class GoBackLinkComponent implements OnInit {
 
   constructor(
-    private router: Router
+    private _router: Router
   ) { }
 
   ngOnInit() {
   }
 
   goBack(){
-    return history ? history.back() : this.router.navigate(['posts']);
+    return history ? history.back() : this._router.navigate(['posts']);
   }
 }
