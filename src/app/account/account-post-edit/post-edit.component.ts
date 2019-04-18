@@ -21,6 +21,7 @@ export class PostEditComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private router: Router,
   ) {
+    this.currentPost$ = this.postDataService.currentPost$;
     this.currentPost$.subscribe(post => {
       this.postEditForm.controls.body.setValue(post.body);
       this.postEditForm.controls.title.setValue(post.title);
