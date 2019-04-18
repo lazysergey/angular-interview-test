@@ -27,7 +27,6 @@ export class PostListComponent implements OnDestroy, OnInit {
   deletePost(postToDelete: Post) {
     (postToDelete as any).shade = true;
     this._subscription = this._postDataService.deletePost(postToDelete.id).subscribe(
-      res => console.log(res)
     );
   }
 }

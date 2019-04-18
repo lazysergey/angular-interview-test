@@ -46,7 +46,6 @@ export class PostDataService {
       this._allPosts$,
       (id, allPosts: Post[]) => ({ id: id, post: allPosts.find(p => p.id == id) })
     ).pipe(
-      tap(_ => console.log(_)),
       switchMap((res: { post: Post, id: number }) =>
         !res.post
           ? res.id

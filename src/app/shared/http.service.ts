@@ -16,7 +16,6 @@ export class HttpService {
   ) { }
 
   doDeletePost(id: number) {
-    console.log(`delete post ${id}`)
     return this._http.delete(`https://jsonplaceholder.typicode.com/posts/${id}`);
   }
 
