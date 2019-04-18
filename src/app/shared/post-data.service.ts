@@ -1,69 +1,132 @@
+import { HttpService } from './http.service';
+import { AuthService } from './../shared/auth.service';
+import { Router, ActivatedRouteSnapshot, ActivationEnd } from '@angular/router';
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { map, catchError, tap, mapTo, switchMap } from 'rxjs/operators';
-import { Observable, of } from 'rxjs';
-import { Post, PostBase } from '../models/post';
+import { map, switchMap, filter } from 'rxjs/operators';
+import { Observable, of, ReplaySubject, zip } from 'rxjs';
+import { Post } from '../models/post';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PostDataService {
-  userPosts: Post[];
+  private _allPosts$: ReplaySubject<Post[]> = new ReplaySubject(1);
+  private _currentPost$: ReplaySubject<Post> = new ReplaySubject(1);
+  private _currentUserAllPost$: ReplaySubject<any> = new ReplaySubject(1);
+  public readonly allPosts$ = this._allPosts$.asObservable();
+  public readonly currentPost$ = this._currentPost$.asObservable();
+  public readonly currentUserAllPost$ = this._currentUserAllPost$.asObservable();
+  private _route$: Observable<ActivatedRouteSnapshot>;
+  private _postId$: any;
 
   constructor(
-    private http: HttpClient
+    private _authService: AuthService,
+    private _httpService: HttpService,
+    private _router: Router,
   ) {
-    console.log(Math.random())
+    this._route$ = this._router.events.pipe(
+      filter(e => e instanceof ActivationEnd),
+      map(e => (e as ActivationEnd).snapshot)
+    );
+
+    this._postId$ = this._route$.pipe(
+      filter(s => s.url.length > 0 && s.url[0].path === 'posts'),
+      map(s => s.params.id || s.queryParams.id),
+    );
+
+    this._loadCurrentPost();
+    this._loadAllPosts();
+    this._loadCurrentUserPosts();
+
   }
 
-  updatePost(post: Post) {
+  private _loadCurrentPost() {
+    this._postId$.pipe(
+      switchMap((id: number) =>
+        id ? this._httpService.getPost(id) : of({})
+      ),
+    ).pipe(
+      map((postDetails => {
+        return postDetails;
+      }))
+    ).subscribe(this._currentPost$);
+  }
+
+  private _loadAllPosts() {
+    this._httpService.getAllPosts().subscribe(
+      this._allPosts$
+    )
+  }
+
+  private _loadCurrentUserPosts() {
+    this._authService.user$.pipe(
+      switchMap(
+        (user) => this._allPosts$.pipe(
+          map((posts: Post[]) => {
+            return posts.filter((p: Post) => p.userId === user.id)
+          }),
+        )
+      )
+    ).subscribe(this._currentUserAllPost$)
+  }
+
+  updatePost(post: Post): Observable<any> {
     if (post.id) {
-      return this.http.put(`https://jsonplaceholder.typicode.com/posts/${post.id}`, post).pipe(
-        map(res => {
-          this.userPosts[this.userPosts.findIndex(p => p.id == post.id)] = post;
-          return this.userPosts;
-        })
+      return zip(
+        this._httpService.doUpdatePost(post),
+        this._currentUserAllPost$,
+        this._allPosts$,
+        (res, currentUserAllPosts: Post[], allPosts: Post[]) => {
+          if (currentUserAllPosts.length) {
+            const indexInCurrentPosts = currentUserAllPosts.findIndex(p => p.id == post.id);
+            currentUserAllPosts[indexInCurrentPosts] = post;
+            this._currentUserAllPost$.next(currentUserAllPosts);
+          }
+          if (allPosts.length) {
+            const indexInAllPosts = allPosts.findIndex(p => p.id == post.id);
+            allPosts[indexInAllPosts] = post;
+            this._allPosts$.next(allPosts)
+          }
+        }
       );
     } else {
-      return this.http.post("https://jsonplaceholder.typicode.com/posts/", post).pipe(
-        map(res => {
-          this.userPosts.push(post);
-          return this.userPosts;
-        })
+      return zip(
+        this._httpService.doCreatePost(post),
+        this._currentUserAllPost$,
+        this._allPosts$,
+        (res, currentUserAllPosts: Post[], allPosts: Post[]) => {
+          post.id = res.id;
+          post.localMockOnly = true;
+          if (currentUserAllPosts.length) {
+            currentUserAllPosts.push(post);
+            this._currentUserAllPost$.next(currentUserAllPosts);
+          }
+          if (allPosts.length) {
+            allPosts.push(post);
+            this._allPosts$.next(allPosts)
+          }
+        }
       );
     }
   }
 
-  getAllPosts(): Observable<Post[]> {
-    return this.http.get<Post[]>("https://jsonplaceholder.typicode.com/posts");
-  }
-
-  getAllUsersPosts(userId: number): Observable<Post[]> {
-    return this.getAllPosts().pipe(
-      map((posts: Post[]) => posts.filter((p: Post) => p.userId === userId)),
-      tap(posts => {
-        this.userPosts = posts;
-        window["p1"] = posts;
-      })
-    );
-  }
-
-  getPost(id: number): Observable<Post> {
-    return this.http.get<Post>(`https://jsonplaceholder.typicode.com/posts/${id}`).pipe(
-      catchError(err => {
-        console.error(err);
-        return of(null)
-      }));
-  }
-
   deletePost(id: number): Observable<any> {
-    return this.http.delete(`https://jsonplaceholder.typicode.com/posts/${id}`).pipe(
-      map(res => {
-        const index = this.userPosts.findIndex(p => p.id == id);
-        // console.log(index);
-        this.userPosts.splice(index, 1);
-        return this.userPosts;
-      })
+    return zip(
+      this._httpService.doDeletePost(id),
+      this._currentUserAllPost$,
+      this._allPosts$,
+      (res, currentUserAllPosts: Post[], allPosts: Post[]) => {
+        if (currentUserAllPosts.length) {
+          const indexInCurrentPosts = currentUserAllPosts.findIndex(p => p.id == id);
+          currentUserAllPosts.splice(indexInCurrentPosts, 1);
+          this._currentUserAllPost$.next(currentUserAllPosts);
+        }
+        if (allPosts.length) {
+          const indexInAllPosts = allPosts.findIndex(p => p.id == id);
+          allPosts.splice(indexInAllPosts, 1);
+          this._allPosts$.next(allPosts)
+        }
+      }
     )
   }
 }

@@ -43,6 +43,10 @@
 @import "partials/post";
 
 body {
-    font-family: Roboto;
+    font-family: Roboto;    
 }
 
+.ng-invalid.ng-touched:not(form) {
+    box-shadow: 0 0 2px 2px $danger;
+    border: none;
+}

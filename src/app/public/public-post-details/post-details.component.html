@@ -1,17 +1,18 @@
-<div class="st-post-details container" *ngIf="postDetails">
+<div class="st-post-details container">
   <div class="row">
     <div class="col-12">
-      <a href="javascript:void(0)" (click)="goBack()">&lt;&nbsp;Back</a>
+      <go-back-link></go-back-link>
       <h1>
-        {{postDetails.title}}
+        {{(post$ | async)?.title}}
       </h1>
       <p>
-        {{postDetails.body}}
+        {{(post$ | async)?.body}}
       </p>
       <p>
-        by {{postDetails.userId}}
+        by {{(post$ | async)?.userId}}
       </p>
     </div>
+    <h1>{{post$.userId | async}}</h1>
 
   </div>
 </div>

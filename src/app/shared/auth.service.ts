@@ -1,115 +1,71 @@
 import { CookieConfig } from './cookie.config';
 import { HttpClient } from '@angular/common/http';
-import { Injectable, OnInit, OnDestroy } from '@angular/core';
-import { map, catchError, mergeMap, switchMap, distinctUntilChanged } from 'rxjs/operators';
-import { Observable, of, ReplaySubject, merge, Subject, throwError, interval } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { map, switchMap} from 'rxjs/operators';
+import { Observable, of, ReplaySubject, throwError, Subscription } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
 import { User } from '../models/user';
-import { Router } from '@angular/router';
-import { routerNgProbeToken } from '@angular/router/src/router_module';
 
 @Injectable({
   providedIn: 'root'
 })
-export class AuthService implements OnDestroy {
-
-  // private isAuthObservable: Observable<boolean>;
-  // private isAuthSubject: any;
-  // private isAuthSubscription: any;
-  // userObj = new ReplaySubject<User>(1)
-  // reloadUserEvent: Subject<boolean> = new Subject();
-  public currentUser: User;
-  public isAuth: boolean;
-
-  // get isAuthorised(): Observable<boolean> {
-  //   if(this.cookieService.get(CookieNames.auth_token)) {
-  //     fetch('userGet')
-  //       .then(userService.user.next(user)) => true
-  //       //getUserDetails
-  //       this.user =
-  //   } 
-  //   return Observable.of(null)
-  //     .merge(this.reloadUserEvent)
-  //     .switchMap(() => {
-  //       console.log('Reloaded');
-  //       const isAuth = this.tokenStoreService.getItem(TokenKeys.USER_KEY, false);
-
-  //       return Observable.of(!!isAuth);
-  //     });
-  // }
-
-  // logout() {
-  //   this.tokenStoreService.removeItem(TokenKeys.USER_KEY);
-  //   this.reloadUserEvent.next(false);
-  //   //redirect
-  // }
+export class AuthService {
+  private _subscription: Subscription;
+  private _user$: ReplaySubject<User> = new ReplaySubject<User>(1);//we need replay subject for late subscribers e.g. account component 
+  private _isAuth$: ReplaySubject<boolean> = new ReplaySubject<boolean>(1);
+  public readonly user$: Observable<User> = this._user$.asObservable();
+  public readonly isAuth$: Observable<boolean> = this._isAuth$.asObservable();
 
   constructor(
-    private cookieService: CookieService,
-    private http: HttpClient,
-    private router: Router
+    private _cookieService: CookieService,
+    private _http: HttpClient
   ) {
-
-    // this.checkStoredCookies();
+    this.checkLoginStatus();
   }
 
-  private getUsers(): Observable<User[]> {
-    return this.http.get<User[]>("https://jsonplaceholder.typicode.com/users");
+  private _getUsers(): Observable<User[]> {
+    return this._http.get<User[]>("https://jsonplaceholder.typicode.com/users");
   }
 
-  // checkStoredCookies() {
-  //   if (this.cookieService.get(CookieNames.auth_token)) {
-  //     this.doesUserExist(this.cookieService.get(CookieNames.auth_email))
-  //   }
-  // }
-
-  isAuthChanges(): Observable<boolean> {
-    return interval(1000).pipe(
-      switchMap(_ => of(!!this.cookieService.get(CookieConfig.authToken))),
-      distinctUntilChanged(),
-      map(isAuth => {
-        this.isAuth = isAuth;
-        console.log('setting isAuth to', isAuth);
-        // if(!isAuth) {
-        //   this.router.navigate(['']);
-        // }
-        return isAuth;
-      }),
-    );
+  checkLoginStatus() {
+    if (this._cookieService.get(CookieConfig.authToken)) {
+      this._subscription = this._getUser(this._cookieService.get(CookieConfig.authEmail)).subscribe(
+        user => {
+          this._user$.next(user);
+          this._isAuth$.next(true);
+          this._subscription.unsubscribe();
+        }
+        
+      );
+    } else {
+      this._isAuth$.next(false);
+    }
   }
-
-  // doLogin(res): Observable<boolean> {
-  //   console.trace("logging in user:", res);
-  //   return of(true);
-  // }
 
   doLogout(): void {
-    this.cookieService.delete(CookieConfig.authToken);
-    this.currentUser = null;
-    this.isAuth = false;
+    this._cookieService.delete(CookieConfig.authToken);
+    this._isAuth$.next(false);
   }
-  private doesUserExist(email: string): Observable<User> {
-    return this.getUsers().pipe(
+
+  private _getUser(email: string): Observable<User> {
+    return this._getUsers().pipe(
       map(users => users.find(u => u.email.toLowerCase() == email.toLowerCase()))
     );
   }
 
   doLogin(email: string, password: string | number): Observable<User> {
-    return this.doesUserExist(email).pipe(
+    return this._getUser(email).pipe(
       switchMap(user => {
         if (!user) {
           return throwError("Email not exists!")
         }
-        this.cookieService.set(CookieConfig.authToken, btoa('random_token'), new Date(Date.now() + 1000 * 60 * 10));
-        this.currentUser = user;
-        this.isAuth = true;
+        const expirationDate = new Date(Date.now() + 1000 * 60 * 10);
+        this._cookieService.set(CookieConfig.authToken, btoa('random_token'), expirationDate);
+        this._cookieService.set(CookieConfig.authEmail, user.email, expirationDate);
+        this._user$.next(user);
+        this._isAuth$.next(true);
         return of(user);
-      }),
-      // catchError(err => console.log(err))
+      })
     )
-  }
-
-  ngOnDestroy() {
-    // this.isAuthSubscription.unsubscribe();
   }
 }

@@ -1,62 +1,69 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { PostDataService } from 'src/app/shared/post-data.service';
+import { PostDataService } from './../../shared/post-data.service';
+import { map, switchMap, take } from 'rxjs/operators';
+import { Post } from 'src/app/models/post';
+import { Subject, Subscription, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-post-edit',
   templateUrl: './post-edit.component.html',
   styleUrls: ['./post-edit.component.scss']
 })
-export class PostEditComponent implements OnInit {
-  currentPostId: any;
-  buttonTitle: any;
+export class PostEditComponent implements OnInit, OnDestroy {
+  private _subscription: Subscription;
+  public buttonTitle$: any;
+  public currentPost$: Observable<Post>;
+  public postEditForm: FormGroup;
 
   constructor(
-    private postDataService: PostDataService,
-    private route: ActivatedRoute,
-    private router: Router,
+    private _postDataService: PostDataService,
+    private _router: Router,
   ) {
-    this.route.queryParams.subscribe(params => {
-      this.currentPostId = params.id;
-      this.buttonTitle = params.id ? "Update" : "Create";
+    this.initForm();
+    this.currentPost$ = this._postDataService.currentPost$;
+    this.currentPost$.subscribe(post => {
+      this.postEditForm.controls.body.setValue(post.body);
+      this.postEditForm.controls.title.setValue(post.title);
     })
+    this.buttonTitle$ = this.currentPost$.pipe(
+      map((post: Post) => post.id ? 'Update' : 'Create')
+    )
   }
 
-  public postEditForm: FormGroup;
-  public showEmailValidationError: boolean;
+  ngOnInit() { }
 
-
-  ngOnInit() {
+  initForm() {
     this.postEditForm = new FormGroup({
-      titleControl: new FormControl(
-        this.currentPostId ? this.postDataService.userPosts.find(p => p.id == this.currentPostId).title : '',
-        [Validators.required]),
-      postContentControl: new FormControl(
-        this.currentPostId ? this.postDataService.userPosts.find(p => p.id == this.currentPostId).body : '',
-        [Validators.required]),
+      title: new FormControl('', [Validators.required]),
+      body: new FormControl('', [Validators.required]),
     });
-
-
-    // this.emailControl.valueChanges.subscribe(res => console.log(res));
   }
 
   onSubmit() {
     for (let i in this.postEditForm.controls) {
       this.postEditForm.controls[i].markAsTouched();
     }
-    // "Sincere@april.biz" || 
+
     if (this.postEditForm.valid) {
-      this.postDataService.updatePost(
-        {
-          id: this.currentPostId,
-          title: this.postEditForm.controls.titleControl.value,
-          body: this.postEditForm.controls.postContentControl.value
-        }
-      ).subscribe(_ => {
-        this.router.navigate(["/account/posts"]);
-      })
+      this._subscription = this.currentPost$.pipe(
+        switchMap(post =>
+          this._postDataService.updatePost(
+            {
+              id: post.id,
+              title: this.postEditForm.controls.title.value,
+              body: this.postEditForm.controls.body.value
+            })
+        )
+      ).subscribe(res => {
+        this._router.navigate(["/account/posts"]);
+      });
     }
+  }
+
+  ngOnDestroy() {
+    this._subscription && this._subscription.unsubscribe()
   }
 
 }

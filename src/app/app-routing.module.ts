@@ -1,3 +1,4 @@
+import { NotFoundPageComponent } from './not-found-page/not-found-page.component';
 import { PostDetailsComponent } from './public/public-post-details/post-details.component';
 import { PostListComponent } from './public/public-post-list/post-list.component';
 import { NgModule } from '@angular/core';
@@ -12,7 +13,14 @@ const routes: Routes = [
     pathMatch: 'full'
   },
   {
-    path: '*', redirectTo: 'posts'
+    path: '404', 
+    component: NotFoundPageComponent,
+    canActivate: [],
+    data: {},
+    pathMatch: 'full'
+  },
+  {
+    path: '*', redirectTo: '404'
   },
   {
     path: 'posts', 
@@ -25,7 +33,6 @@ const routes: Routes = [
     path: 'account', loadChildren: "./account/account.module#AccountModule",
     canActivate: [],
     data: {},
-    // pathMatch: 'full'
   },
   {
     path: 'posts/:id', 
@@ -37,7 +44,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, {enableTracing: false})],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }
