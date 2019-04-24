@@ -1,5 +1,7 @@
 # Angular interview task -- see _task.pdf for details
 
+[View on Stackblitz](https://stackblitz.com/github/lazysergey/angular-interview-test/)
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.3.8.
 
 ## Development server
