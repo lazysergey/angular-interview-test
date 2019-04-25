@@ -20,9 +20,6 @@ const routes: Routes = [
     pathMatch: 'full'
   },
   {
-    path: '*', redirectTo: '404'
-  },
-  {
     path: 'posts', 
     component: PostListComponent,
     canActivate: [],
@@ -40,6 +37,9 @@ const routes: Routes = [
     canActivate: [],
     data: {},
     pathMatch: 'full'
+  },
+  {
+    path: '**', redirectTo: '404'
   },
 ];
 
