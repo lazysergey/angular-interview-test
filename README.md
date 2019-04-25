@@ -1,4 +1,4 @@
-# Angular interview test
+# Angular interview task
 
 View the app hosted on [Stackblitz](https://stackblitz.com/github/lazysergey/angular-interview-test/)
 
