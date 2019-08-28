@@ -2,7 +2,8 @@
 
 View the app hosted on [Stackblitz](https://stackblitz.com/github/lazysergey/angular-interview-test/)
 
-Note: *API is readonly (server not saves the updates), see[_task.pdf](https://github.com/lazysergey/angular-interview-test/blob/master/_task.pdf) for details.*
+## Note: API is readonly (server not saves the updates)
+see[_task.pdf](https://github.com/lazysergey/angular-interview-test/blob/master/_task.pdf) for details.
 
 ### Development server
 
